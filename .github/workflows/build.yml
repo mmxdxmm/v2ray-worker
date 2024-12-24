@@ -23,7 +23,7 @@ jobs:
 
     - name: Add Header
       run: |
-        cp $GITHUB_WORKSPACE/dist/worker.js $GITHUB_WORKSPACE/dist/worker-original.js
+        cp $GITHUB_WORKSPACE/worker.js $GITHUB_WORKSPACE/dist/worker-original.js
         echo -e "/*!\n  * v2ray Subscription Worker ($GITHUB_SHA)\n  * Copyright 2024 Vahid Farid (https://twitter.com/vahidfarid)\n  * Licensed under GPLv3 (https://github.com/vfarid/v2ray-worker/blob/main/Licence.md)\n  */\n\n$(cat $GITHUB_WORKSPACE/dist/worker.js)" > $GITHUB_WORKSPACE/dist/worker.js
 
     - name: Set environment variables
