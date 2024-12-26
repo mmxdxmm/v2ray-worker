@@ -1,4 +1,5 @@
 name: Deploy Worker
+
 on:
   repository_dispatch:
 
@@ -9,23 +10,26 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3
       
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v3
       with:
-        node-version: "latest"
+        node-version: "18"
         cache: "npm"
 
-    - name: Install modules
-      run: npm i wrangler@latest
-
-    - name: Build
-      run: npx wrangler build
+    - name: Install Wrangler
+      run: npm install -g wrangler@latest
 
     - name: Add Header
-      run: cp ${{ github.workspace }}/dist/worker.js ${{ github.workspace }}/dist/worker-original.js && echo -e "/*!\n  * v2ray Subscription Worker (${{ github.sha }})\n  * Copyright 2024 Vahid Farid (https://twitter.com/vahidfarid)\n  * Licensed under GPLv3 (https://github.com/vfarid/v2ray-worker/blob/main/Licence.md)\n  */\n\n$(cat ${{ github.workspace }}/dist/worker.js)" > ${{ github.workspace }}/dist/worker.js
+      run: |
+        cp $GITHUB_WORKSPACE/dist/worker.js $GITHUB_WORKSPACE/dist/worker-original.js
+        echo -e "/*!\n  * v2ray Subscription Worker ($GITHUB_SHA)\n  * Copyright 2024 Vahid Farid (https://twitter.com/vahidfarid)\n  * Licensed under GPLv3 (https://github.com/vfarid/v2ray-worker/blob/main/Licence.md)\n  */\n\n$(cat $GITHUB_WORKSPACE/dist/worker.js)" > $GITHUB_WORKSPACE/dist/worker.js
+
+    - name: Set environment variables
+      run: echo "KV_NAME=${{ secrets.KV_NAME }}" >> $GITHUB_ENV
 
     - name: Deploy
-      run: sed -i "s/KV_NAME/{{ secrets.KV_NAME }}/g" wrangler.toml && wrangler deploy --api-token ${{ secrets.CF_API_TOKEN }} --account-id ${{ secrets.CF_ACCOUNT_ID }}
-
+      run: |
+        sed -i "s/KV_NAME/$KV_NAME/g" wrangler.toml
+        wrangler deploy --api-token ${{ secrets.CF_API_TOKEN }} --account-id ${{ secrets.CF_ACCOUNT_ID }} 
